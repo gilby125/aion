@@ -93,9 +93,7 @@ public class PendingTxCache {
 
     private boolean isCacheMax(Map<BigInteger, AionTransaction> txmap) {
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("isCacheMax [{}] [{}]", currectSize.get(), getAccuTxSize(txmap.values().stream().collect(Collectors.toList())));
-        }
+        LOG.info("isCacheMax [{}] [{}]", currectSize.get(), getAccuTxSize(txmap.values().stream().collect(Collectors.toList())));
         return (currectSize.get() + getAccuTxSize(txmap.values().stream().collect(Collectors.toList()))) > cacheMax;
     }
 

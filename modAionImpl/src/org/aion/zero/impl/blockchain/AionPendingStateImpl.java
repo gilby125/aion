@@ -612,11 +612,6 @@ public class AionPendingStateImpl
         return this.txPool.bestNonceSet(addr);
     }
 
-    @Override
-    public synchronized BigInteger bestPoolNonce(Address addr) {
-        return this.txPool.bestNonce(addr);
-    }
-
     /**
      * get txpool version
      *
@@ -632,8 +627,6 @@ public class AionPendingStateImpl
     public synchronized BigInteger bestNonce(Address addr) {
         return nonceMgr.getNonce(addr);
     }
-
-
 
     @Override
     public List<AionTransaction> addToTxCache(Map<BigInteger, AionTransaction> txmap, Address addr) {
