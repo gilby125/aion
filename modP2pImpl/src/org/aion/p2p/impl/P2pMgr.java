@@ -685,8 +685,8 @@ public final class  P2pMgr implements IP2pMgr {
             selector = Selector.open();
 
             scheduledWorkers = new ScheduledThreadPoolExecutor(1);
-            workers = Executors.newFixedThreadPool(Math.min(Runtime.getRuntime().availableProcessors() * 2, 16));
-            //workers = Executors.newCachedThreadPool();
+            // workers = Executors.newFixedThreadPool(Math.min(Runtime.getRuntime().availableProcessors() * 2, 16));
+            workers = Executors.newCachedThreadPool();
 
             tcpServer = ServerSocketChannel.open();
             tcpServer.configureBlocking(false);
@@ -738,22 +738,6 @@ public final class  P2pMgr implements IP2pMgr {
 
     @Override
     public INode getRandom(){
-        return nodeMgr.getRandom();
-    }
-
-    public INode getRandom(NodeRandPolicy nrp, long bbn) {
-        switch (nrp) {
-            case RND:
-                break;
-            case REALTIME:
-
-                // only fetch node with blocknumber > ( highest -128 )
-                return nodeMgr.getRandomRealtime(bbn);
-
-            case SYNC:
-                break;
-        }
-
         return nodeMgr.getRandom();
     }
 
