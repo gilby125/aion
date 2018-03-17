@@ -176,7 +176,7 @@ public final class SyncMgr {
 
         Thread tGetBodies = new Thread(new TaskGetBodies(this.p2pMgr, this.start, this.importedHeaders, this.sentHeaders), "sync-gh");
         tGetBodies.start();
-        Thread tImport = new Thread(new TaskImportBlocks(this, this.chain, this.start, this.jump, this.importedBlocks, statics, log), "sync-ib");
+        new Thread(new TaskImportBlocks(this, this.chain, this.start, this.jump, this.importedBlocks, statics, log), "sync-ib").start();
         new Thread(new TaskGetStatus(this.start, INTERVAL_GET_STATUS, this.p2pMgr, log), "sync-gs").start();
         if(_showStatus)
             new Thread(new TaskShowStatus(this.start, INTERVAL_SHOW_STATUS, this.chain, this.jump,  this.networkStatus, statics, log), "sync-ss").start();
@@ -253,6 +253,12 @@ public final class SyncMgr {
 
         if (importedBlocks.size() > blocksQueueMax)
             return;
+
+        System.out.println(
+                "incoming-bodies " +
+                        " from-node=" + _displayId +
+                        " # block=" + _bodies.size()
+        );
 
         HeadersWrapper hw = this.sentHeaders.remove(_nodeIdHashcode);
         if (hw == null || _bodies == null)

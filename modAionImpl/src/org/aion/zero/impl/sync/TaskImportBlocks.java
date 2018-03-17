@@ -116,16 +116,16 @@ final class TaskImportBlocks implements Runnable {
 
                         break;
                     case EXIST:
-                        if (log.isDebugEnabled()) {
-                            log.debug("<import-fail err=block-exit num={} hash={} txs={}>", b.getNumber(),
+                        if (log.isTraceEnabled()) {
+                            log.trace("<import-fail err=block-exit num={} hash={} txs={}>", b.getNumber(),
                                     b.getShortHash(), b.getTransactionsList().size());
                         }
                         break;
                     case NO_PARENT:
                         long oldJump = jump.get();
                         long newJump = Math.max(1, oldJump - sync.syncForwardMax);
-                        if (log.isDebugEnabled()) {
-                            log.debug("<import-fail err=no-parent num={} hash={}>", b.getNumber(), b.getShortHash());
+                        if (log.isInfoEnabled()) {
+                            log.info("<import-fail err=no-parent num={} hash={}>", b.getNumber(), b.getShortHash());
                         }
                         System.out.println("<sync-jump " + oldJump + "->" + newJump + ">");
                         jump.set(newJump);
