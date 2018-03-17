@@ -29,11 +29,16 @@
 
 package org.aion.zero.impl.sync;
 
+import org.aion.base.util.ByteArrayWrapper;
 import org.aion.mcf.core.ImportResult;
 import org.aion.zero.impl.AionBlockchainImpl;
 import org.aion.zero.impl.types.AionBlock;
+import org.apache.commons.collections4.map.LRUMap;
 import org.slf4j.Logger;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -77,6 +82,8 @@ final class TaskImportBlocks implements Runnable {
         this.log = _log;
     }
 
+    private Map<ByteArrayWrapper, Object> cache = Collections.synchronizedMap(new LRUMap<>(1024));
+
     @Override
     public void run() {
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
@@ -92,6 +99,10 @@ final class TaskImportBlocks implements Runnable {
             boolean fetchAheadTriggerUsed = false;
             boolean shouldBreakFor = false;
             for (AionBlock b : batch) {
+                if (cache.containsKey(ByteArrayWrapper.wrap(b.getHash()))) {
+                    continue;
+                }
+
                 ImportResult importResult = this.chain.tryToConnect(b);
                 switch (importResult) {
                     case IMPORTED_BEST:
@@ -107,6 +118,7 @@ final class TaskImportBlocks implements Runnable {
                             this.sync.getHeaders(this.chain.getTotalDifficulty());
                         }
 
+                        cache.put(ByteArrayWrapper.wrap(b.getHash()), null);
                         break;
                     case IMPORTED_NOT_BEST:
                         if (log.isInfoEnabled()) {
@@ -114,12 +126,15 @@ final class TaskImportBlocks implements Runnable {
                                     b.getTransactionsList().size());
                         }
 
+                        cache.put(ByteArrayWrapper.wrap(b.getHash()), null);
                         break;
                     case EXIST:
-                        if (log.isTraceEnabled()) {
-                            log.trace("<import-fail err=block-exit num={} hash={} txs={}>", b.getNumber(),
+                        if (log.isInfoEnabled()) {
+                            log.info("<import-fail err=block-exit num={} hash={} txs={}>", b.getNumber(),
                                     b.getShortHash(), b.getTransactionsList().size());
                         }
+
+                        cache.put(ByteArrayWrapper.wrap(b.getHash()), null);
                         break;
                     case NO_PARENT:
                         long oldJump = jump.get();
